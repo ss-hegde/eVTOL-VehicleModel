@@ -1,0 +1,5 @@
+# Ignore the virtual env
+vehicle_env
+
+# Exclude database zippped folder
+FLOWunsteady_model/database.tar.gz
