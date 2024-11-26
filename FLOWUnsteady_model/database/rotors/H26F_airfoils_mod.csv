@@ -1,0 +1,17 @@
+r/R,Contour file,Aero file
+0,H26F_airfoil_sec_1.csv,H26F_airfoilpolar-sec1-Re134368.csv
+0.1342,H26F_airfoil_sec_1.csv,H26F_airfoilpolar-sec2-Re241707.csv
+0.1956,H26F_airfoil_sec_2.csv,H26F_airfoilpolar-sec3-Re291640.csv
+0.2568,H26F_airfoil_sec_3.csv,H26F_airfoilpolar-sec4-Re343960.csv
+0.3191,H26F_airfoil_sec_4.csv,H26F_airfoilpolar-sec5-Re401196.csv
+0.3804,H26F_airfoil_sec_5.csv,H26F_airfoilpolar-sec6-Re462008.csv
+0.4418,H26F_airfoil_sec_6.csv,H26F_airfoilpolar-sec7-Re526952.csv
+0.5031,H26F_airfoil_sec_7.csv,H26F_airfoilpolar-sec8-Re594329.csv
+0.5804,H26F_airfoil_sec_8.csv,H26F_airfoilpolar-sec9-Re679076.csv
+0.6267,H26F_airfoil_sec_9.csv,H26F_airfoilpolar-sec10-Re727013.csv
+0.688,H26F_airfoil_sec_10.csv,H26F_airfoilpolar-sec11-Re782176.csv
+0.7493,H26F_airfoil_sec_11.csv,H26F_airfoilpolar-sec12-Re818900.csv
+0.8107,H26F_airfoil_sec_12.csv,H26F_airfoilpolar-sec13-Re821287.csv
+0.872,H26F_airfoil_sec_13.csv,H26F_airfoilpolar-sec14-Re762733.csv
+0.9404,H26F_airfoil_sec_14.csv,H26F_airfoilpolar-sec15-Re558066.csv
+1,H26F_airfoil_sec_14.csv,H26F_airfoilpolar-sec16-Re136650.csv
