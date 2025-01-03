@@ -4,36 +4,38 @@ import FLOWUnsteady: vlm, vpm, gt, Im
 
 # include(joinpath("C:/", "Course_Material", "eMagic_one_model_flowUnsteady", "eMagicOne_model","eMagicOne_vehicle.jl" ))
 include(joinpath("eMagicOne_vehicle.jl" ))
-include(joinpath("eMagicOne_maneuver.jl" ))
+include(joinpath("eMagicOne_maneuver_new.jl" ))
 include(joinpath("eMagicOne_monitors.jl" ))
 
-run_name        = "vehicle-eMO-v2-hover"            # Name of this simulation
-save_path       = "eMO_hover_vel25_v3"                 # Where to save this simulation
+run_name        = "eMO-scaled-V0-R2000"            # Name of this simulation
+save_path       = "eMO_hover_v0_r2000_a1"                 # Where to save this simulation
 paraview        = false                     # Whether to visualize with Paraview
 xfoil           = true
 
 # ----------------- GEOMETRY PARAMETERS ----------------------------------------
 n_factor = 1
 add_wings = true
-add_rotors = true
+add_rotors =true
 # VehicleType     = uns.UVLMVehicle           # Unsteady solver
 
 # Reference lengths
-R               = 1.125                       # (m) reference blade radius
-b               = 5.86                      # (m) reference wing span
-chord           = b/7.4                     # (m) reference wing chord
-thickness       = 0.04*chord                # (m) reference wing thickness
+k = 0.1301
+R               = 1.125 * k                     # (m) reference blade radius
+b               = 5.86 * k                      # (m) reference wing span
+chord           = b/7.4 * k                     # (m) reference wing chord
+thickness       = 0.04*chord * k                # (m) reference wing thickness
 
 # ----------------- SIMULATION PARAMETERS --------------------------------------
 # Maneuver settings
-Vcruise         = 10.0                      # (m/s) cruise speed (reference)
-RPMh_w          = 1600.0                    # RPM of rotors in hover (reference)
-ttot            = 30.0                       # (s) total time to perform maneuver
+Vcruise         = 1.0                       # (m/s) cruise speed (reference)
+RPMh_w          = 2000.0                    # RPM of rotors in hover (reference)
+ttot            = 0.5                       # (s) total time to perform maneuver
 
-use_variable_pitch = false                   # Whether to use variable pitch in cruise
+use_variable_pitch = false                  # Whether to use variable pitch in cruise
 
 # Freestream
-Vinf(X,t)       = 25.0*[1, 0, 0]           # (m/s) freestream velocity (if 0 the solvers can become unstable)
+Vinf(X,t)       = 0.001*[cosd(1.0), 0, sind(1.0)]
+# Vinf(X,t)       = 12.0*[1, 0, -1]         # (m/s) freestream velocity (if 0 the solvers can become unstable)
 rho             = 1.225                     # (kg/m^3) air density
 mu              = 1.81e-5                   # (kg/ms) air dynamic viscosity
 
@@ -41,8 +43,8 @@ mu              = 1.81e-5                   # (kg/ms) air dynamic viscosity
 #       point along the eVTOL maneuver (tstart=0 and tquit=ttot will simulate
 #       the entire maneuver, tstart=0.20*ttot will start it at the beginning of
 #       the hover->cruise transition)
-tstart          = 0.0*ttot                 # (s) start simulation at this point in time
-tquit           = 0.2*ttot                 # (s) end simulation at this point in time
+tstart          = 0.0 * ttot               # (s) start simulation at this point in time
+tquit           = ttot                     # (s) end simulation at this point in time
 
 start_kinmaneuver = true                    # If true, it starts the maneuver with the
                                             # velocity and angles of tstart.
@@ -56,19 +58,20 @@ VehicleType     = uns.UVLMVehicle           # Unsteady solver
 # VehicleType     = uns.QVLMVehicle         # Quasi-steady solver
 
 # Time parameters
-nsteps          = 4*4500                    # Time steps for entire maneuver
+# nsteps          = 4*4500                    # Time steps for entire maneuver
+nsteps          = 500
 dt              = ttot/nsteps               # (s) time step
 
 # VPM particle shedding
-p_per_step      = 3                         # Sheds per time step
+p_per_step      = 2                         # Sheds per time step
 shed_starting   = false                     # Whether to shed starting vortex
 shed_unsteady   = true                      # Whether to shed vorticity from unsteady loading
 unsteady_shedcrit = 0.001                   # Shed unsteady loading whenever circulation
                                             # fluctuates by more than this ratio
 
 # Regularization of embedded vorticity
-sigma_vlm_surf  = b/400                     # VLM-on-VPM smoothing radius
-sigma_rotor_surf= R/20                      # Rotor-on-VPM smoothing radius
+sigma_vlm_surf  = b/100                     # VLM-on-VPM smoothing radius
+sigma_rotor_surf= R/10                      # Rotor-on-VPM smoothing radius
 lambda_vpm      = 2.125                     # VPM core overlap
                                             # VPM smoothing radius
 sigma_vpm_overwrite         = lambda_vpm * (2*pi*RPMh_w/60*R + Vcruise)*dt / p_per_step
@@ -76,11 +79,11 @@ sigmafactor_vpmonvlm        = 1             # Shrink particles by this factor wh
                                             #  calculating VPM-on-VLM/Rotor induced velocities
 
 # Rotor solver
-vlm_rlx                     = 0.2           # VLM relaxation <-- this also applied to rotors
+vlm_rlx                     = 0.5           # VLM relaxation <-- this also applied to rotors
 hubtiploss_correction       = vlm.hubtiploss_correction_prandtl # Hub and tip correction
 
 # Wing solver: actuator surface model (ASM)
-vlm_vortexsheet             = true         # Whether to spread the wing surface vorticity as a vortex sheet (activates ASM)
+vlm_vortexsheet             = false        # Whether to spread the wing surface vorticity as a vortex sheet (activates ASM)
 vlm_vortexsheet_overlap     = 2.125         # Overlap of the particles that make the vortex sheet
 vlm_vortexsheet_distribution= uns.g_pressure# Distribution of the vortex sheet
 # vlm_vortexsheet_sigma_tbv = thickness*chord / 100  # Size of particles in trailing bound vortices
@@ -104,17 +107,17 @@ wing_polar_file             = "xf-n0012-il-500000-n5.csv"    # Airfoil polar for
 
 
 # VPM solver
-vpm_integration = vpm.rungekutta3         # VPM temporal integration scheme
-# vpm_integration = vpm.euler
+# vpm_integration = vpm.rungekutta3         # VPM temporal integration scheme
+vpm_integration = vpm.euler
 
 vpm_viscous     = vpm.Inviscid()            # VPM viscous diffusion scheme
 # vpm_viscous   = vpm.CoreSpreading(-1, -1, vpm.zeta_fmm; beta=100.0, itmax=20, tol=1e-1)
 
-# vpm_SFS       = vpm.SFS_none              # VPM LES subfilter-scale model
-vpm_SFS         = vpm.DynamicSFS(vpm.Estr_fmm, vpm.pseudo3level_positive;
-                                  alpha=0.999, maxC=1.0,
-                                  clippings=[vpm.clipping_backscatter],
-                                  controls=[vpm.control_directional, vpm.control_magnitude])
+vpm_SFS       = vpm.SFS_none              # VPM LES subfilter-scale model
+# vpm_SFS         = vpm.DynamicSFS(vpm.Estr_fmm, vpm.pseudo3level_positive;
+#                                   alpha=0.999, maxC=1.0,
+#                                   clippings=[vpm.clipping_backscatter],
+#                                   controls=[vpm.control_directional, vpm.control_magnitude])
 
 if VehicleType == uns.QVLMVehicle
     # Mute warnings regarding potential colinear vortex filaments. This is
@@ -135,7 +138,7 @@ vehicle = generate_eMagicOne_vehicle(; xfoil       = true,
                                         )
 
 # ------------- 2) MANEUVER DEFINITION -----------------------------------------
-maneuver = generate_maneuver_eMagicOne(; add_rotors=add_rotors)
+anglevehicle(t), Vvehicle(t), maneuver = generate_maneuver_eMagicOne(; add_rotors=add_rotors)
 
 # Plot maneuver before running the simulation
 uns.plot_maneuver(maneuver)
@@ -217,8 +220,12 @@ wingmonitor_optargs = (
                       )
 
 # ------------- Create monitors
+
+# orientation_wing(t) = zeros(3)
+# orientation_canard(t) = zeros(3)
+AOA = 1.0
 monitors = generate_monitor_eMagicOne(vehicle, rho, RPMref, nsteps,
-                                         save_path, Vinf;
+                                         save_path, Vinf, AOA;
                                          add_wings=add_wings,
                                          wingmonitor_optargs=wingmonitor_optargs)
 
@@ -227,7 +234,7 @@ monitors = generate_monitor_eMagicOne(vehicle, rho, RPMref, nsteps,
 
 # Remove by particle strength
 # (remove particles neglibly faint, remove blown up)
-rmv_strngth = 2*2/p_per_step * dt/(30/(4*4500))         # Reference strength
+rmv_strngth = 2*2/p_per_step * dt/(30/(500))         # Reference strength
 minmaxGamma = rmv_strngth*[0.0001, 0.05]                # Strength bounds (removes particles outside of these bounds)
 wake_treatment_strength = uns.remove_particles_strength( minmaxGamma[1]^2, minmaxGamma[2]^2; every_nsteps=1)
 
@@ -238,7 +245,7 @@ wake_treatment_sigma = uns.remove_particles_sigma( minmaxsigma[1], minmaxsigma[2
 
 # Remove by distance
 # (remove particles outside of the computational domain of interest, i.e., far from vehicle)
-wake_treatment_sphere = uns.remove_particles_sphere((1.5*b)^2, 1; Xoff=[4.0, 0, 0])
+wake_treatment_sphere = uns.remove_particles_sphere((1.5*b)^2, 1; Xoff=[0.5, 0, 0])
 
 # Concatenate all wake treatments
 wake_treatment = uns.concatenate(wake_treatment_sphere, wake_treatment_strength, wake_treatment_sigma)

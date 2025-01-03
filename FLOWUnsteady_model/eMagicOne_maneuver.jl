@@ -388,5 +388,5 @@ function generate_maneuver_eMagicOne(; disp_plot=true,    # If true, it will dis
         uns.plot_maneuver(maneuver; tstages=[t1, t2, t3, t4])
     end
 
-    return maneuver
+    return Vvehicle, anglevehicle, maneuver
 end

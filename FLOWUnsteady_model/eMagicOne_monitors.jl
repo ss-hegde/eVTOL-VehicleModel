@@ -1,7 +1,7 @@
 """
     Generates the monitors of Vahana eVTOL simulation
 """
-function generate_monitor_eMagicOne(vehicle, rho, RPMref, nsteps, save_path, Vinf;
+function generate_monitor_eMagicOne(vehicle, rho, RPMref, nsteps, save_path, Vinf, AOA;
                                                         add_wings=true,
                                                         wingmonitor_optargs=[])
     #include(joinpath("eMagicOne_vehicle.jl" ))
@@ -26,6 +26,17 @@ function generate_monitor_eMagicOne(vehicle, rho, RPMref, nsteps, save_path, Vin
     # Directions of force components
     L_dir = [0, 0, 1]
     D_dir = [1, 0, 0]
+
+    # temporary
+    pitch =     0.0
+    tilt  =     93.0
+    yaw   =     0.0
+
+    orientation_wing_temp(t) = [0, 0, 0]
+    orientation_canard_temp(t) = [0, 1, 0]
+
+    Vvehicle_temp(t) = zeros(3)
+    anglevehicle_temp(t) = zeros(3)
 
     # Generate function that computes wing aerodynamic forces
     calc_aerodynamicforce_fun_wing = uns.generate_calc_aerodynamicforce(;
@@ -53,7 +64,8 @@ function generate_monitor_eMagicOne(vehicle, rho, RPMref, nsteps, save_path, Vin
         monitor_name = "wing_main"
         mainwing_system = vlm.get_wing(vehicle.vlm_system, "Wing")
         mainwing_monitor = uns.generate_monitor_wing(mainwing_system, Vinf, b_ref, ar_ref,
-                                                        rho, qinf, nsteps;
+                                                        rho, qinf, AOA, orientation_wing_temp, anglevehicle_temp,
+                                                        Vvehicle_temp, nsteps;
                                                         calc_aerodynamicforce_fun=calc_aerodynamicforce_fun_wing,
                                                         save_path=save_path,
                                                         run_name=monitor_name,
@@ -68,7 +80,8 @@ function generate_monitor_eMagicOne(vehicle, rho, RPMref, nsteps, save_path, Vin
         monitor_name = "Canarad"
         tandemwing_system = vlm.get_wing(vehicle.vlm_system, "Canard")
         tandemwing_monitor = uns.generate_monitor_wing(tandemwing_system, Vinf, b_ref, ar_ref,
-                                                        rho, qinf, nsteps;
+                                                        rho, qinf, AOA, orientation_canard_temp, anglevehicle_temp,
+                                                        Vvehicle_temp, nsteps;
                                                         calc_aerodynamicforce_fun=calc_aerodynamicforce_fun_canard,
                                                         save_path=save_path,
                                                         run_name=monitor_name,
@@ -87,45 +100,49 @@ function generate_monitor_eMagicOne(vehicle, rho, RPMref, nsteps, save_path, Vin
 
 
     # -------------------- ROTOR MONITORS --------------------------------------
-    for (si, rotors) in enumerate(vehicle.rotor_systems)
+    if add_rotors
 
-        monitor_name = "rotorsys$(si)"
+        # for (si, rotors) in enumerate(vehicle.rotor_systems)
 
-        rotors_monitor = uns.generate_monitor_rotors(rotors, Jref, rho, RPMref,
-                                                        nsteps;
+        #     monitor_name = "rotorsys$(si)"
+
+        #     rotors_monitor = uns.generate_monitor_rotors(rotors, Jref, rho, RPMref,
+        #                                                     nsteps;
+        #                                                     save_path=save_path,
+        #                                                     run_name=monitor_name,
+        #                                                     figname=monitor_name,
+        #                                                     save_init_plots=false)
+        #     push!(monitors, rotors_monitor)
+        # end
+
+        for (si, rotor) in enumerate(vehicle.rotor_systems[1])
+    
+        monitor_name = "rotor_L$(si)"
+        rotor_vec = [rotor, ]
+        rotor_monitor_L = uns.generate_monitor_rotors(rotor_vec, Jref, rho, RPMref,
+                                                        nsteps, AOA, pitch, tilt, yaw;
                                                         save_path=save_path,
                                                         run_name=monitor_name,
                                                         figname=monitor_name,
                                                         save_init_plots=false)
-        push!(monitors, rotors_monitor)
-    end
+        push!(monitors, rotor_monitor_L)
 
-    for (si, rotor) in enumerate(vehicle.rotor_systems[1])
- 
-	monitor_name = "rotor_L$(si)"
-	rotor_vec = [rotor, ]
-	rotor_monitor_L = uns.generate_monitor_rotors(rotor_vec, Jref, rho, RPMref,
-	                                                nsteps;
-	                                                save_path=save_path,
-	                                                run_name=monitor_name,
-	                                                figname=monitor_name,
-	                                                save_init_plots=false)
-	push!(monitors, rotor_monitor_L)
+        end
 
-    end
+        for (si, rotor) in enumerate(vehicle.rotor_systems[2])
+    
+        monitor_name = "rotor_R$(si)"
+        rotor_vec = [rotor, ]
+        rotor_monitor_R = uns.generate_monitor_rotors(rotor_vec, Jref, rho, RPMref,
+                                                        nsteps, AOA, pitch, tilt, yaw;
+                                                        save_path=save_path,
+                                                        run_name=monitor_name,
+                                                        figname=monitor_name,
+                                                        save_init_plots=false)
+        push!(monitors, rotor_monitor_R)
 
-    for (si, rotor) in enumerate(vehicle.rotor_systems[2])
- 
-	monitor_name = "rotor_R$(si)"
-	rotor_vec = [rotor, ]
-	rotor_monitor_R = uns.generate_monitor_rotors(rotor_vec, Jref, rho, RPMref,
-	                                                nsteps;
-	                                                save_path=save_path,
-	                                                run_name=monitor_name,
-	                                                figname=monitor_name,
-	                                                save_init_plots=false)
-	push!(monitors, rotor_monitor_R)
-
+        end
+    
     end
 
 
