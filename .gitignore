@@ -3,4 +3,9 @@ vehicle_env
 
 # Exclude database zippped folder
 FLOWunsteady_model/database.tar.gz
+# Exclude the simulation data
 FLOWunsteady_simulations
+
+src/__pycache__
+
+temp
