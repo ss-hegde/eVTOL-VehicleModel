@@ -62,16 +62,18 @@ class PropellerDataset(Dataset):
                     # Load the CSV file
                     csv_path = os.path.join(subdir, file)
                     df = pd.read_csv(csv_path)
-                    df = df[df['T'] <= 0.28]
+                    df = df[df['T'] < 0.28]
                     
                     # Extract necessary columns for input features
                     time = df['T'].values  # Time
                     omega = df['RPM_1'].values  # RPM
                     J = df['J'].values
                     AOA = df['AOA'].values
+                    v_inf = df['v_inf'].values
                     pitch = df['Pitch (blade)'].values
                     tilt = df['Tilt'].values
                     yaw = df['Yaw'].values
+                    
                     ref_angle = df['ref age (deg)'].values
 
                     # Store time and omega in separate lists for easy access
@@ -99,18 +101,22 @@ class PropellerDataset(Dataset):
                     self.fft_cq_r.append(fft_cq_real)
                     self.fft_cq_i.append(fft_cq_imag)
 
+
                     # For each simulation, the input sequence is structured as (n_timesteps, n_features)
                     sequence_inputs = []
                     sequence_outputs = []
                     for i in range(len(time)):
                         # Each time step has time, omega, and predefined variables: alpha, J, theta, yaw, tilt
                         input_data = [
-                            time[i], ref_angle[i], omega[i], (100*np.sin(omega[i]*time[i])), 
-                            (100*np.cos(omega[i]*time[i])), AOA[i], J[i], pitch[i], tilt[i], yaw[i]
+                            # time[i], ref_angle[i], omega[i], (100*np.sin(omega[i]*time[i])), 
+                            # (100*np.cos(omega[i]*time[i])), AOA[i], J[i], pitch[i], tilt[i], yaw[i]
+                            time[i], omega[i], AOA[i], v_inf[i], (100*np.sin(omega[i]*time[i])), 
+                            (100*np.cos(omega[i]*time[i])), J[i], pitch[i], tilt[i], yaw[i]
                             # omega[i], AOA[i], J[i], pitch[i], tilt[i], yaw[i]
                         ]
                         # output_data = [ct[i], cq[i], fft_ct_imag[i], fft_cq_imag[i]]
-                        output_data = [fft_ct_real[i], fft_ct_imag[i], fft_cq_real[i], fft_cq_imag[i]]
+                        output_data = [ct[i], cq[i]]
+                        # output_data = [fft_ct_real[i], fft_ct_imag[i], fft_cq_real[i], fft_cq_imag[i]]
                         
                         
                         sequence_inputs.append(input_data)

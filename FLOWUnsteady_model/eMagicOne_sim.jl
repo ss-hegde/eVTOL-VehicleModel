@@ -7,8 +7,8 @@ include(joinpath("eMagicOne_vehicle.jl" ))
 include(joinpath("eMagicOne_maneuver_new.jl" ))
 include(joinpath("eMagicOne_monitors.jl" ))
 
-run_name        = "eMO-scaled-V0-R2000"            # Name of this simulation
-save_path       = "eMO_hover_v0_r2000_a1"                 # Where to save this simulation
+run_name        = "eMO-scaled-V8-R2200"            # Name of this simulation
+save_path       = "eMO_hover_v8_r2200_a5"                 # Where to save this simulation
 paraview        = false                     # Whether to visualize with Paraview
 xfoil           = true
 
@@ -28,13 +28,14 @@ thickness       = 0.04*chord * k                # (m) reference wing thickness
 # ----------------- SIMULATION PARAMETERS --------------------------------------
 # Maneuver settings
 Vcruise         = 1.0                       # (m/s) cruise speed (reference)
-RPMh_w          = 2000.0                    # RPM of rotors in hover (reference)
-ttot            = 0.5                       # (s) total time to perform maneuver
+RPMh_w          = 2200.0                    # RPM of rotors in hover (reference)
+ttot            = 0.3                       # (s) total time to perform maneuver
 
 use_variable_pitch = false                  # Whether to use variable pitch in cruise
 
 # Freestream
-Vinf(X,t)       = 0.001*[cosd(1.0), 0, sind(1.0)]
+AOA_aircraft    = 5.0                       # (deg) aircraft angle of attack
+Vinf(X,t)       = 8.0*[cosd(AOA_aircraft), 0, sind(AOA_aircraft)] # (m/s) freestream velocity
 # Vinf(X,t)       = 12.0*[1, 0, -1]         # (m/s) freestream velocity (if 0 the solvers can become unstable)
 rho             = 1.225                     # (kg/m^3) air density
 mu              = 1.81e-5                   # (kg/ms) air dynamic viscosity
@@ -59,7 +60,7 @@ VehicleType     = uns.UVLMVehicle           # Unsteady solver
 
 # Time parameters
 # nsteps          = 4*4500                    # Time steps for entire maneuver
-nsteps          = 500
+nsteps          = 300
 dt              = ttot/nsteps               # (s) time step
 
 # VPM particle shedding
