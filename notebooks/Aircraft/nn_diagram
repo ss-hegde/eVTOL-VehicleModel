@@ -1,0 +1,13 @@
+// Neural Network
+digraph {
+	graph [rankdir=LR]
+	A1 [label="Input Layer"]
+	A2 [label="Input Layer"]
+	B [label="Hidden Layer 1"]
+	C [label="Hidden Layer 2"]
+	D [label="Output Layer"]
+	A1 -> B
+	A2 -> B
+	B -> C
+	C -> D
+}

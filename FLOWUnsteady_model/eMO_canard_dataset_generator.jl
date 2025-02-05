@@ -1,7 +1,7 @@
 import FLOWUnsteady as uns
 import FLOWVLM as vlm
 
-function run_single_simulation(run_name, airfoil_name, magVinf, AOA, b, ar, tr, lambda, gamma)
+function run_single_simulation(run_name, airfoil_name, magVinf, AOA, b, ar, tr, lambda, gamma, frequency)
 
   run_name        = run_name                  # Name of this simulation
 
@@ -84,7 +84,19 @@ function run_single_simulation(run_name, airfoil_name, magVinf, AOA, b, ar, tr, 
 
   # ------------- 2) MANEUVER DEFINITION -----------------------------------------
 
-  Vvehicle(t) = zeros(3)                      # Translational velocity of vehicle over time
+  # Vvehicle(t) = zeros(3)                      # Translational velocity of vehicle over time
+  
+  frequency = frequency
+  amplitude = 0.02
+  function Vvehicle(t)
+
+    # NOTE: This function receives the non-dimensional time `t` and returns the
+    #       attitude of the vehicle (a vector with inclination angles with
+    #       respect to each axis of the global coordinate system)
+
+    return [0, 0, amplitude*sin(2*pi*frequency * t)]
+  end
+  
   anglevehicle(t) = zeros(3)                  # Angle of the vehicle over time
 
   # Varying angle of the vehicle over time
@@ -108,7 +120,7 @@ function run_single_simulation(run_name, airfoil_name, magVinf, AOA, b, ar, tr, 
 
   # ------------- 3) SIMULATION DEFINITION ---------------------------------------
 
-  Vref = 0.0                                  # Reference velocity to scale maneuver by
+  Vref = 1.0                                  # Reference velocity to scale maneuver by
   RPMref = 0.0                                # Reference RPM to scale maneuver by
   Vinit = Vref*Vvehicle(0)                    # Initial vehicle velocity
   Winit = pi/180*(anglevehicle(1e-6) - anglevehicle(0))/(1e-6*ttot)  # Initial angular velocity
@@ -249,6 +261,51 @@ function schedule_simulations()
       # ("wing_dataset_ca_aoa_13.9_vinf_13.8", "xf-naca6412-il-1000000", 13.8, 13.9, 0.984, 17.88, 0.68, 0.2, 1.8),
       # ("wing_dataset_ca_aoa_9.6_vinf_9.7",   "xf-naca6412-il-1000000", 9.7, 9.6, 0.882, 15.17, 0.69, 9.4, -4.8),
       
+      # Unsteady dataset
+      # ("wing_dataset_ca_aoa_4.9_vinf_3.5_freq_66.1",  "xf-naca6412-il-1000000", 3.5, 4.9, 1.131, 15.934, 0.93, 6.4, 1.0, 66.1) ,
+      # ("wing_dataset_ca_aoa_0.9_vinf_1.3_freq_57.0",  "xf-naca6412-il-1000000", 1.3, 0.9, 0.904, 14.884, 0.68, 4.9, 1.0, 57.0) ,
+      # ("wing_dataset_ca_aoa_0.7_vinf_6.9_freq_55.2",  "xf-naca6412-il-1000000", 6.9, 0.7, 0.858, 16.939, 0.54, 1.3, 2.5, 55.2) ,
+      # ("wing_dataset_ca_aoa_3.7_vinf_8.0_freq_68.4",  "xf-naca6412-il-1000000", 8.0, 3.7, 0.931, 12.84, 0.53, 4.5, 1.2, 68.4) ,
+      # ("wing_dataset_ca_aoa_4.4_vinf_7.1_freq_66.2",  "xf-naca6412-il-1000000", 7.1, 4.4, 1.184, 14.236, 0.59, 2.1, 4.3, 66.2) ,
+      # ("wing_dataset_ca_aoa_2.4_vinf_11.4_freq_69.3", "xf-naca6412-il-1000000", 11.4, 2.4, 0.862, 15.846, 0.95, 1.9, 4.1, 69.3) ,
+      # ("wing_dataset_ca_aoa_5.7_vinf_2.1_freq_63.7",  "xf-naca6412-il-1000000", 2.1, 5.7, 1.036, 15.909, 0.67, 5.7, 1.4, 63.7) ,
+      # ("wing_dataset_ca_aoa_4.6_vinf_10.9_freq_68.6", "xf-naca6412-il-1000000", 10.9, 4.6, 1.061, 14.308, 0.83, 2.4, 0.4, 68.6) ,
+      # ("wing_dataset_ca_aoa_4.0_vinf_11.3_freq_69.7", "xf-naca6412-il-1000000", 11.3, 4.0, 0.856, 16.585, 0.9, 8.5, 4.4, 69.7) ,
+      # ("wing_dataset_ca_aoa_2.8_vinf_9.9_freq_51.3",  "xf-naca6412-il-1000000", 9.9, 2.8, 0.935, 16.847, 0.58, 3.6, 4.6, 51.3) ,
+      
+      # ("wing_dataset_ca_aoa_2.3_vinf_6.7_freq_68.3",  "xf-naca6412-il-1000000", 6.7, 2.3, 0.805, 13.743, 0.63, 2.0, 4.2, 68.3) ,
+      # ("wing_dataset_ca_aoa_1.6_vinf_10.2_freq_58.1", "xf-naca6412-il-1000000", 10.2, 1.6, 1.1, 13.816, 0.5, 4.2, 3.5, 58.1) ,
+      # ("wing_dataset_ca_aoa_3.6_vinf_3.3_freq_59.9",  "xf-naca6412-il-1000000", 3.3, 3.6, 1.018, 16.542, 0.55, 7.1, 3.8, 59.9) ,
+      # ("wing_dataset_ca_aoa_0.3_vinf_2.2_freq_58.8",  "xf-naca6412-il-1000000", 2.2, 0.3, 1.169, 14.404, 0.51, 8.1, 4.3, 58.8) ,
+      # ("wing_dataset_ca_aoa_2.4_vinf_6.9_freq_55.5",  "xf-naca6412-il-1000000", 6.9, 2.4, 0.957, 12.699, 0.64, 4.0, 1.4, 55.5) ,
+      # ("wing_dataset_ca_aoa_3.8_vinf_7.1_freq_65.5",  "xf-naca6412-il-1000000", 7.1, 3.8, 1.009, 13.128, 0.66, 4.0, 1.7, 65.5) ,
+      # ("wing_dataset_ca_aoa_5.2_vinf_10.9_freq_60.2", "xf-naca6412-il-1000000", 10.9, 5.2, 1.15, 16.907, 0.94, 9.3, 1.4, 60.2) ,
+      # ("wing_dataset_ca_aoa_4.3_vinf_9.2_freq_57.0",  "xf-naca6412-il-1000000", 9.2, 4.3, 1.128, 14.515, 0.63, 4.9, 2.4, 57.0) ,
+      # ("wing_dataset_ca_aoa_3.5_vinf_1.5_freq_55.2",  "xf-naca6412-il-1000000", 1.5, 3.5, 1.012, 12.693, 0.89, 8.1, 2.4, 55.2) ,
+      
+      # ("wing_dataset_ca_aoa_1.4_vinf_6.7_freq_68.2", "xf-naca6412-il-1000000", 6.7, 1.4, 0.824, 13.992, 0.69, 7.3, 4.2, 68.2) ,
+      # ("wing_dataset_ca_aoa_1.9_vinf_9.5_freq_66.2", "xf-naca6412-il-1000000", 9.5, 1.9, 1.198, 14.083, 0.71, 8.4, 3.1, 66.2) ,
+      # ("wing_dataset_ca_aoa_2.9_vinf_1.6_freq_65.6", "xf-naca6412-il-1000000", 1.6, 2.9, 1.13, 16.07, 0.57, 6.7, 0.1, 65.6) ,
+      # ("wing_dataset_ca_aoa_4.3_vinf_5.9_freq_63.4", "xf-naca6412-il-1000000", 5.9, 4.3, 1.084, 17.894, 0.9, 4.7, 2.9, 63.4) ,
+      # ("wing_dataset_ca_aoa_2.9_vinf_5.6_freq_69.2", "xf-naca6412-il-1000000", 5.6, 2.9, 1.143, 12.441, 0.64, 0.4, 4.8, 69.2) ,
+      # ("wing_dataset_ca_aoa_5.2_vinf_4.7_freq_60.3", "xf-naca6412-il-1000000", 4.7, 5.2, 1.046, 14.595, 0.69, 0.3, 3.4, 60.3) ,
+      # ("wing_dataset_ca_aoa_1.7_vinf_5.7_freq_66.0", "xf-naca6412-il-1000000", 5.7, 1.7, 0.837, 17.762, 0.81, 4.6, 2.2, 66.0) ,
+      # ("wing_dataset_ca_aoa_3.6_vinf_9.1_freq_67.7", "xf-naca6412-il-1000000", 9.1, 3.6, 1.01, 12.43, 0.61, 7.4, 2.8, 67.7) ,
+      # ("wing_dataset_ca_aoa_1.8_vinf_5.2_freq_70.0", "xf-naca6412-il-1000000", 5.2, 1.8, 0.83, 17.615, 0.7, 2.2, 2.3, 70.0) ,
+      # ("wing_dataset_ca_aoa_5.8_vinf_4.4_freq_57.1", "xf-naca6412-il-1000000", 4.4, 5.8, 1.148, 17.299, 0.68, 0.5, 4.3, 57.1) ,
+      
+      # ("wing_dataset_ca_aoa_4.3_vinf_4.5_freq_55.4",  "xf-naca6412-il-1000000", 4.5, 4.3, 1.046, 12.798, 0.73, 7.5, 1.4, 55.4) ,
+      # ("wing_dataset_ca_aoa_5.5_vinf_6.4_freq_58.9",  "xf-naca6412-il-1000000", 6.4, 5.5, 0.918, 12.519, 0.51, 5.8, 2.3, 58.9) ,
+      # ("wing_dataset_ca_aoa_2.4_vinf_8.7_freq_60.4",  "xf-naca6412-il-1000000", 8.7, 2.4, 1.077, 15.615, 0.81, 8.5, 4.8, 60.4) ,
+      # ("wing_dataset_ca_aoa_0.8_vinf_10.8_freq_59.4", "xf-naca6412-il-1000000", 10.8, 0.8, 0.862, 16.2, 0.58, 2.4, 0.5, 59.4) ,
+      # ("wing_dataset_ca_aoa_2.4_vinf_5.0_freq_66.2",  "xf-naca6412-il-1000000", 5.0, 2.4, 0.817, 16.437, 0.57, 1.2, 0.9, 66.2) ,
+      # ("wing_dataset_ca_aoa_5.7_vinf_8.7_freq_57.5",  "xf-naca6412-il-1000000", 8.7, 5.7, 0.92, 15.918, 0.89, 0.5, 0.0, 57.5) ,
+      # ("wing_dataset_ca_aoa_2.7_vinf_10.8_freq_60.7", "xf-naca6412-il-1000000", 10.8, 2.7, 1.126, 16.72, 0.88, 7.6, 4.4, 60.7) ,
+      # ("wing_dataset_ca_aoa_2.7_vinf_11.0_freq_66.6", "xf-naca6412-il-1000000", 11.0, 2.7, 1.191, 12.926, 0.78, 8.0, 4.3, 66.6) ,
+      # ("wing_dataset_ca_aoa_3.3_vinf_3.3_freq_64.9",  "xf-naca6412-il-1000000", 3.3, 3.3, 1.01, 12.787, 0.56, 6.1, 2.1, 64.9) ,
+      # ("wing_dataset_ca_aoa_4.0_vinf_3.4_freq_68.0",  "xf-naca6412-il-1000000", 3.4, 4.0, 1.093, 14.767, 0.8, 4.8, 2.7, 68.0) ,
+      # ("wing_dataset_ca_aoa_4.4_vinf_6.9_freq_68.6",  "xf-naca6412-il-1000000", 6.9, 4.4, 1.095, 12.804, 0.58, 6.0, 4.3, 68.6) ,
+
       # # # Testing Cases
       # ("wing_dataset_ca_aoa_1.9_vinf_2.3",   "xf-naca6412-il-1000000", 2.3, 1.9, 0.904, 14.059, 0.68, 1.2, 0.4),
       # ("wing_dataset_ca_aoa_8.4_vinf_5.6",   "xf-naca6412-il-1000000", 5.6, 8.4, 1.174, 12.063, 0.85, 8.7, -4.0),
@@ -256,10 +313,22 @@ function schedule_simulations()
       # ("wing_dataset_ca_aoa_-2.7_vinf_1.3",  "xf-naca6412-il-1000000", 1.3, -2.7, 1.107, 13.129, 0.92, 3.3, 3.8),
       # ("wing_dataset_ca_aoa_2.7_vinf_6.5",   "xf-naca6412-il-1000000", 6.5, 2.7, 1.082, 15.554, 0.99, 4.9, 4.7),
       # ("wing_dataset_ca_aoa_6.9_vinf_15.0",  "xf-naca6412-il-1000000", 15.0, 6.9, 1.141, 17.56, 0.65, 3.2, 3.1),
-      ("wing_dataset_ca_aoa_5.3_vinf_1.4",   "xf-naca6412-il-1000000", 1.4, 5.3, 1.046, 17.169, 0.52, 9.6, -2.7),
-      ("wing_dataset_ca_aoa_7.3_vinf_15.9",  "xf-naca6412-il-1000000", 15.9, 7.3, 0.989, 14.504, 0.9, 0.7, 4.9),
-      ("wing_dataset_ca_aoa_-1.2_vinf_13.9", "xf-naca6412-il-1000000", 13.9, -1.2, 0.835, 16.734, 0.78, 2.5, -4.4),
-      ("wing_dataset_ca_aoa_10.7_vinf_18.8", "xf-naca6412-il-1000000", 18.8, 10.7, 1.092, 12.81, 0.64, 7.1, 0.9),
+      # ("wing_dataset_ca_aoa_5.3_vinf_1.4",   "xf-naca6412-il-1000000", 1.4, 5.3, 1.046, 17.169, 0.52, 9.6, -2.7),
+      # ("wing_dataset_ca_aoa_7.3_vinf_15.9",  "xf-naca6412-il-1000000", 15.9, 7.3, 0.989, 14.504, 0.9, 0.7, 4.9),
+      # ("wing_dataset_ca_aoa_-1.2_vinf_13.9", "xf-naca6412-il-1000000", 13.9, -1.2, 0.835, 16.734, 0.78, 2.5, -4.4),
+      # ("wing_dataset_ca_aoa_10.7_vinf_18.8", "xf-naca6412-il-1000000", 18.8, 10.7, 1.092, 12.81, 0.64, 7.1, 0.9),
+
+      # Unsteady dataset
+      # ("wing_dataset_ca_aoa_4.6_vinf_9.2_freq_52.4",  "xf-naca6412-il-1000000", 9.2, 4.6, 1.002, 13.74, 0.71, 5.1, 3.7, 52.4) ,
+      # ("wing_dataset_ca_aoa_3.6_vinf_10.9_freq_58.4", "xf-naca6412-il-1000000", 10.9, 3.6, 1.038, 16.055, 0.74, 7.1, 4.3, 58.4) ,
+      # ("wing_dataset_ca_aoa_4.5_vinf_2.0_freq_54.6",  "xf-naca6412-il-1000000", 2.0, 4.5, 0.808, 16.906, 0.63, 1.8, 3.0, 54.6) ,
+      # ("wing_dataset_ca_aoa_1.0_vinf_4.2_freq_51.9",  "xf-naca6412-il-1000000", 4.2, 1.0, 1.198, 17.705, 0.7, 10.0, 2.1, 51.9) ,
+      ("wing_dataset_ca_aoa_5.8_vinf_5.7_freq_52.8",  "xf-naca6412-il-1000000", 5.7, 5.8, 1.137, 16.56, 0.69, 6.6, 2.8, 52.8) ,
+      ("wing_dataset_ca_aoa_0.5_vinf_7.7_freq_63.5",  "xf-naca6412-il-1000000", 7.7, 0.5, 1.004, 17.032, 0.57, 1.9, 0.7, 63.5) ,
+      ("wing_dataset_ca_aoa_3.8_vinf_7.5_freq_64.5",  "xf-naca6412-il-1000000", 7.5, 3.8, 1.027, 14.431, 0.59, 8.7, 2.6, 64.5) ,
+      ("wing_dataset_ca_aoa_3.5_vinf_9.8_freq_55.6",  "xf-naca6412-il-1000000", 9.8, 3.5, 1.115, 17.897, 0.78, 1.2, 0.8, 55.6) ,
+      ("wing_dataset_ca_aoa_2.9_vinf_10.8_freq_68.8", "xf-naca6412-il-1000000", 10.8, 2.9, 1.102, 13.777, 0.73, 8.3, 0.7, 68.8) ,
+      ("wing_dataset_ca_aoa_5.5_vinf_11.1_freq_65.4", "xf-naca6412-il-1000000", 11.1, 5.5, 1.171, 16.935, 0.72, 1.7, 2.8, 65.4) ,
 
 
 
@@ -267,8 +336,8 @@ function schedule_simulations()
 
 
   # Run each simulation sequentially
-  for (run_name, airfoil_name, magVinf, AOA, b, ar, tr, lambda, gamma) in simulation_params
-    run_single_simulation(run_name, airfoil_name, magVinf, AOA, b, ar, tr, lambda, gamma)
+  for (run_name, airfoil_name, magVinf, AOA, b, ar, tr, lambda, gamma, frequency) in simulation_params
+    run_single_simulation(run_name, airfoil_name, magVinf, AOA, b, ar, tr, lambda, gamma, frequency)
   end
 
 end
