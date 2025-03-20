@@ -6,6 +6,26 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Cl Model
 class RBFLayer_cl(nn.Module):
+    """
+    Radial Basis Function (RBF) Layer for PyTorch.
+    This layer computes the Gaussian RBF transformation of the input data.
+    Args:
+        in_features (int): Number of input features.
+        out_features (int): Number of output features (number of RBF centers).
+        centers (Tensor, optional): Predefined centers for the RBFs. If None, centers are initialized randomly.
+    Attributes:
+        in_features (int): Number of input features.
+        out_features (int): Number of output features.
+        centers (nn.Parameter): RBF centers, either initialized randomly or set from predefined values.
+        log_beta (nn.Parameter): Logarithm of the beta (width) parameter for the Gaussian RBF, constrained to be positive using softplus.
+    Methods:
+        beta: Property that returns the positive beta parameter using softplus.
+        forward(input): Computes the RBF transformation of the input data.
+    Example:
+        >>> rbf_layer = RBFLayer_cl(in_features=10, out_features=5)
+        >>> input = torch.randn(3, 10)
+        >>> output = rbf_layer(input)
+    """
     def __init__(self, in_features, out_features, centers=None):
         super(RBFLayer_cl, self).__init__()
         self.in_features = in_features

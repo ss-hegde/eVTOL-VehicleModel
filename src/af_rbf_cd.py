@@ -6,6 +6,27 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Cd Model
 class RBFLayer_cd(nn.Module):
+    """
+    Radial Basis Function (RBF) Layer with centers determined by KMeans or explicitly provided.
+    Args:
+        in_features (int): Number of input features.
+        out_features (int): Number of output features (number of RBF centers).
+        centers (Tensor, optional): Predefined centers for the RBFs. If None, centers are initialized randomly.
+    Attributes:
+        in_features (int): Number of input features.
+        out_features (int): Number of output features (number of RBF centers).
+        centers (Parameter): Tensor containing the centers of the RBFs.
+        log_beta (Parameter): Logarithm of the beta (width) parameter for the RBFs.
+    Methods:
+        beta:
+            Property that returns the positive beta (width) parameter using the softplus function.
+        forward(input):
+            Computes the output of the RBF layer for the given input.
+            Args:
+                input (Tensor): Input tensor of shape (batch_size, in_features).
+            Returns:
+                Tensor: Output tensor of shape (batch_size, out_features) containing the RBF activations.
+    """
     def __init__(self, in_features, out_features, centers=None):
         super(RBFLayer_cd, self).__init__()
         self.in_features = in_features

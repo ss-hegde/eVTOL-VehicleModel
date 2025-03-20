@@ -9,3 +9,8 @@ FLOWunsteady_simulations
 src/__pycache__
 
 temp
+
+Archives
+
+# Ignore airfoil training data
+data/airfoil_data/training_database
