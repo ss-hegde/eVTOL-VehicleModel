@@ -13,4 +13,4 @@ temp
 Archives
 
 # Ignore airfoil training data
-data/airfoil_data/training_database
+/data/airfoil_model/training_database
